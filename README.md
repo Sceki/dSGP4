@@ -27,7 +27,12 @@ Differentiable SGP4.
 
 ![orbits](https://github.com/esa/dSGP4/assets/33602846/2f42992d-0838-4c11-ae4b-68ad76e2bf33)
 
-This repository contains the code discussed in [this paper](https://arxiv.org/abs/2402.04830). $\partial \textrm{SGP4}$ is a differentiable version of SGP4 implemented using PyTorch. By making SGP4 differentiable, $\partial \textrm{SGP4}$ facilitates various space-related applications, including spacecraft orbit determination, covariance transformation, state transition matrix computation, and covariance propagation. Additionally, $\partial \textrm{SGP4}$'s PyTorch implementation allows for parallel orbital propagation across batches of Two-Line Element Sets (TLEs), leveraging the computational power of CPUs, GPUs, and advanced hardware for distributed prediction of satellite positions at future times. Furthermore, $\partial \textrm{SGP4}$'s differentiability enables integration with modern machine learning techniques. Thus, we propose a novel orbital propagation paradigm, $\textrm{ML}-\partial \textrm{SGP4}$, where neural networks are integrated into the orbital propagator. Through stochastic gradient descent, this combined model's inputs, outputs, and parameters can be iteratively refined, surpassing SGP4's precision while maintaining computational speed. This empowers satellite operators and researchers to train the model using high-precision simulated or observed data, advancing orbital prediction capabilities compared to the standard SGP4.
+This repository contains the code discussed in [this paper](https://doi.org/10.1016/j.actaastro.2024.10.063). 
+
+$\partial \textrm{SGP4}$ is a differentiable version of SGP4 implemented using PyTorch. By making SGP4 differentiable, $\partial \textrm{SGP4}$ facilitates various space-related applications, including spacecraft orbit determination, covariance transformation, state transition matrix computation, and covariance propagation. 
+Additionally, $\partial \textrm{SGP4}$'s PyTorch implementation allows for parallel orbital propagation across batches of Two-Line Element Sets (TLEs), leveraging the computational power of CPUs, GPUs, and advanced hardware for distributed prediction of satellite positions at future times. Furthermore, $\partial \textrm{SGP4}$'s differentiability enables integration with modern machine learning techniques. 
+Thus, we propose a novel orbital propagation paradigm, $\textrm{ML}-\partial \textrm{SGP4}$, where neural networks are integrated into the orbital propagator. 
+Through stochastic gradient descent, this combined model's inputs, outputs, and parameters can be iteratively refined, surpassing SGP4's precision while maintaining computational speed. This empowers satellite operators and researchers to train the model using high-precision simulated or observed data, advancing orbital prediction capabilities compared to the standard SGP4.
 
 ## Goals
 
@@ -39,14 +44,20 @@ This repository contains the code discussed in [this paper](https://arxiv.org/ab
 ## How to cite
 
 If you use `dsgp4`, we would be grateful if you could star the repository and/or cite our work.
-$\partial \textrm{SGP4}$ and its applications for ML hybrid propagation and more, can be found in our [publication](https://arxiv.org/abs/2402.04830):
+$\partial \textrm{SGP4}$ and its applications for ML hybrid propagation and more, can be found in our [publication](https://doi.org/10.1016/j.actaastro.2024.10.063):
 
 ```bibtex
 @article{acciarini2024closing,
-  title={Closing the Gap Between SGP4 and High-Precision Propagation via Differentiable Programming},
-  author={Acciarini, Giacomo and Baydin, At{\i}l{\i}m G{\"u}ne{\c{s}} and Izzo, Dario},
-  journal={arXiv preprint arXiv:2402.04830},
-  year={2024}
+title = {Closing the gap between SGP4 and high-precision propagation via differentiable programming},
+journal = {Acta Astronautica},
+volume = {226},
+pages = {694-701},
+year = {2025},
+issn = {0094-5765},
+doi = {https://doi.org/10.1016/j.actaastro.2024.10.063},
+url = {https://www.sciencedirect.com/science/article/pii/S0094576524006374},
+author = {Giacomo Acciarini and Atılım Güneş Baydin and Dario Izzo},
+keywords = {SGP4, Orbital propagation, Differentiable programming, Machine learning, Spacecraft collision avoidance, Kessler, Kessler syndrome, AI for space, Applied machine learning for space},
 }
 ```
 
