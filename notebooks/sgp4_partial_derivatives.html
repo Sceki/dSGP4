@@ -1,0 +1,1182 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Partial Derivatives Computation via Autodiff &#8212; dsgp4 1.2.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/sgp4_partial_derivatives';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ML-dSGP4" href="mldsgp4.html" />
+    <link rel="prev" title="Propagate TLEs" href="tle_propagation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo_dsgp4.png" class="logo__image only-light" alt="dsgp4 1.2.0 documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo_dsgp4.png" class="logo__image only-dark" alt="dsgp4 1.2.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../capabilities.html">Capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../tutorials.html">Tutorials</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tle_object.html">TLE Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tle_propagation.html">Propagate TLEs</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Partial Derivatives Computation via Autodiff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mldsgp4.html">ML-dSGP4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="covariance_transformation.html">Similarity Transformation - from Cartesian to TLE Covariance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="covariance_propagation.html">Covariance Propagation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gradient_based_optimization.html">Gradient Based Optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.plot.plot_orbit.html">dsgp4.plot.plot_orbit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.plot.plot_tles.html">dsgp4.plot.plot_tles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.tle.compute_checksum.html">dsgp4.tle.compute_checksum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.tle.read_satellite_catalog_number.html">dsgp4.tle.read_satellite_catalog_number</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.tle.load_from_lines.html">dsgp4.tle.load_from_lines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.tle.load_from_data.html">dsgp4.tle.load_from_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.tle.load.html">dsgp4.tle.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.tle.TLE.html">dsgp4.tle.TLE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.tle.TLE.copy.html">dsgp4.tle.TLE.copy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.tle.TLE.perigee_alt.html">dsgp4.tle.TLE.perigee_alt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.tle.TLE.apogee_alt.html">dsgp4.tle.TLE.apogee_alt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.tle.TLE.set_time.html">dsgp4.tle.TLE.set_time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.tle.TLE.update.html">dsgp4.tle.TLE.update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.get_gravity_constants.html">dsgp4.util.get_gravity_constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.propagate_batch.html">dsgp4.util.propagate_batch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.propagate.html">dsgp4.util.propagate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.initialize_tle.html">dsgp4.util.initialize_tle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.from_year_day_to_date.html">dsgp4.util.from_year_day_to_date</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.gstime.html">dsgp4.util.gstime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.clone_w_grad.html">dsgp4.util.clone_w_grad</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.jday.html">dsgp4.util.jday</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.invjday.html">dsgp4.util.invjday</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.days2mdhms.html">dsgp4.util.days2mdhms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.from_string_to_datetime.html">dsgp4.util.from_string_to_datetime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.from_mjd_to_epoch_days_after_1_jan.html">dsgp4.util.from_mjd_to_epoch_days_after_1_jan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.from_mjd_to_datetime.html">dsgp4.util.from_mjd_to_datetime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.from_jd_to_datetime.html">dsgp4.util.from_jd_to_datetime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.get_non_empty_lines.html">dsgp4.util.get_non_empty_lines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.from_datetime_to_fractional_day.html">dsgp4.util.from_datetime_to_fractional_day</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.from_datetime_to_mjd.html">dsgp4.util.from_datetime_to_mjd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.from_datetime_to_jd.html">dsgp4.util.from_datetime_to_jd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.util.from_cartesian_to_keplerian.html">dsgp4.util.from_cartesian_to_keplerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.sgp4.html">dsgp4.sgp4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.sgp4_batched.html">dsgp4.sgp4_batched</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.sgp4init.sgp4init.html">dsgp4.sgp4init.sgp4init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.sgp4init_batch.sgp4init_batch.html">dsgp4.sgp4init_batch.sgp4init_batch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.sgp4init_batch.initl_batch.html">dsgp4.sgp4init_batch.initl_batch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.initl.html">dsgp4.initl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.newton_method.html">dsgp4.newton_method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.sgp4init.html">dsgp4.sgp4init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_autosummary/dsgp4.sgp4init_batch.html">dsgp4.sgp4init_batch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dsgp4.mldsgp4.html">mldsgp4 model</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://mybinder.org/v2/gh/esa/dSGP4/master?urlpath=lab/tree/doc/notebooks/sgp4_partial_derivatives.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch onBinder"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img src="../_static/images/logo_binder.svg">
+  </span>
+<span class="btn__text-container">Binder</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/esa/dSGP4" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/esa/dSGP4/issues/new?title=Issue%20on%20page%20%2Fnotebooks/sgp4_partial_derivatives.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/notebooks/sgp4_partial_derivatives.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Partial Derivatives Computation via Autodiff</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#partials-with-respect-to-time">Partials with respect to time</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#single-tles">Single TLEs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#batch-tles">Batch TLEs</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#partials-with-respect-to-tle-parameters">Partials with respect to TLE parameters</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Single TLEs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Batch TLEs:</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="partial-derivatives-computation-via-autodiff">
+<h1>Partial Derivatives Computation via Autodiff<a class="headerlink" href="#partial-derivatives-computation-via-autodiff" title="Permalink to this heading">#</a></h1>
+<p>In this notebook, we show how to use the autodiff feature of <span class="math notranslate nohighlight">\(\partial\textrm{SGP4}\)</span>. Due to the fact that it is written in <code class="docutils literal notranslate"><span class="pre">pytorch</span></code>, it automatically supports automatic differentiation via <code class="docutils literal notranslate"><span class="pre">torch.autograd</span></code>.</p>
+<p>In this notebook, we show how these partial derivatives can be constructed: for more advanced examples on how to use these gradients for practical applications, see the tutorials on <code class="docutils literal notranslate"><span class="pre">state_transition_matrix_computation</span></code>, <code class="docutils literal notranslate"><span class="pre">covariance_propagation</span></code>, <code class="docutils literal notranslate"><span class="pre">graident_based_optimization</span></code>, <code class="docutils literal notranslate"><span class="pre">orbit_determination</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dsgp4</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We create a TLE object</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#as always, first, we create a TLE object:</span>
+<span class="n">tle</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">tle</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;0 COSMOS 2251 DEB&#39;</span><span class="p">)</span>
+<span class="n">tle</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;1 34454U 93036SX  22068.91971155  .00000319  00000-0  11812-3 0  9996&#39;</span><span class="p">)</span>
+<span class="n">tle</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;2 34454  74.0583 280.7094 0037596 327.9100  31.9764 14.35844873683320&#39;</span><span class="p">)</span>
+<span class="n">tle</span> <span class="o">=</span> <span class="n">dsgp4</span><span class="o">.</span><span class="n">tle</span><span class="o">.</span><span class="n">TLE</span><span class="p">(</span><span class="n">tle</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tle</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TLE(
+0 COSMOS 2251 DEB
+1 34454U 93036SX  22068.91971155  .00000319  00000-0  11812-3 0  9996
+2 34454  74.0583 280.7094 0037596 327.9100  31.9764 14.35844873683320
+)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now, as shown in the <code class="docutils literal notranslate"><span class="pre">tle_propagation</span></code> tutorial, we can propagate the TLE. However, instead of using the standard API, we require <code class="docutils literal notranslate"><span class="pre">torch.autograd</span></code> to record the operations w.r.t. the time.</p>
+<section id="partials-with-respect-to-time">
+<h2>Partials with respect to time<a class="headerlink" href="#partials-with-respect-to-time" title="Permalink to this heading">#</a></h2>
+<p>Let’s compute the partials of the <span class="math notranslate nohighlight">\(\partial \textrm{SGP4}\)</span> output w.r.t. the propagation times</p>
+<section id="single-tles">
+<h3>Single TLEs<a class="headerlink" href="#single-tles" title="Permalink to this heading">#</a></h3>
+<p>Let’s first see the case of single TLEs, propagated at various future times:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#let&#39;s take a random tensor of 10 tsince elements, where we track the gradients:</span>
+<span class="n">tsince</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">10</span><span class="p">,),</span><span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#the state is then:</span>
+<span class="n">state_teme</span> <span class="o">=</span> <span class="n">dsgp4</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">tle</span><span class="p">,</span>
+                <span class="n">tsinces</span><span class="o">=</span><span class="n">tsince</span><span class="p">,</span>
+                <span class="n">initialized</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="c1">#now, we can see that the gradient is tracked:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">state_teme</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[[ 1.3506e+03, -7.0006e+03,  9.1806e+01],
+         [ 2.0029e+00,  4.7307e-01,  7.2022e+00]],
+
+        [[ 1.3291e+03, -7.0053e+03,  1.4478e+01],
+         [ 2.0188e+00,  3.9030e-01,  7.2028e+00]],
+
+        [[ 1.3311e+03, -7.0049e+03,  2.1862e+01],
+         [ 2.0173e+00,  3.9820e-01,  7.2028e+00]],
+
+        [[ 1.3941e+03, -6.9884e+03,  2.4940e+02],
+         [ 1.9698e+00,  6.4162e-01,  7.1981e+00]],
+
+        [[ 1.4368e+03, -6.9726e+03,  4.0678e+02],
+         [ 1.9358e+00,  8.0972e-01,  7.1902e+00]],
+
+        [[ 1.3682e+03, -6.9962e+03,  1.5513e+02],
+         [ 1.9898e+00,  5.4083e-01,  7.2010e+00]],
+
+        [[ 1.3575e+03, -6.9990e+03,  1.1656e+02],
+         [ 1.9978e+00,  4.9957e-01,  7.2018e+00]],
+
+        [[ 1.4308e+03, -6.9750e+03,  3.8440e+02],
+         [ 1.9407e+00,  7.8582e-01,  7.1915e+00]],
+
+        [[ 1.4415e+03, -6.9706e+03,  4.2409e+02],
+         [ 1.9319e+00,  8.2820e-01,  7.1891e+00]],
+
+        [[ 1.4415e+03, -6.9706e+03,  4.2395e+02],
+         [ 1.9320e+00,  8.2805e-01,  7.1891e+00]]],
+       grad_fn=&lt;TransposeBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s now retrieve the partial derivatives of the SGP4 output w.r.t. time.</p>
+<p>Since the state is position and velocity (i.e., <span class="math notranslate nohighlight">\([x,y,z,v_x,v_y,v_z]\)</span>), these partials will be all the elements of type:</p>
+<div class="amsmath math notranslate nohighlight" id="equation-33cd477d-e93a-4f5b-899e-9f9e89588561">
+<span class="eqno">(1)<a class="headerlink" href="#equation-33cd477d-e93a-4f5b-899e-9f9e89588561" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\dfrac{d \pmb{x}}{d t}=[\dfrac{dx}{dt}, \dfrac{dy}{dt}, \dfrac{dz}{dt}, \dfrac{d^2x}{dt^2}, \dfrac{d^2y}{dt^2}, \dfrac{d^2z}{dt^2}]^T=[v_x, v_y, v_z, \dfrac{dv_x}{dt}, \dfrac{dv_y}{dt}, \dfrac{dv_z}{dt}]^T
+\end{equation}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>One thing to be careful about is that <span class="math notranslate nohighlight">\(\partial\textrm{SGP4}\)</span>, mirroring the original <span class="math notranslate nohighlight">\(\textrm{SGP4}\)</span>, takes the time in minutes, and returns the state in km and km/s. Hence, the derivatives will have dimensions coherent to these, and to return to SI, conversions have to be made.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partial_derivatives</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">state_teme</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]:</span>
+        <span class="n">tsince</span><span class="o">.</span><span class="n">grad</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">state_teme</span><span class="p">[:,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">tsince</span><span class="p">),</span><span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">partial_derivatives</span><span class="p">[:,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">tsince</span><span class="o">.</span><span class="n">grad</span>
+
+<span class="c1">#let&#39;s print to screen the partials:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">partial_derivatives</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[[ 1.2018e+02,  2.8385e+01,  4.3213e+02],
+         [-8.9221e-02,  4.6245e-01, -6.0805e-03]],
+
+        [[ 1.2113e+02,  2.3418e+01,  4.3217e+02],
+         [-8.7798e-02,  4.6277e-01, -9.5922e-04]],
+
+        [[ 1.2104e+02,  2.3892e+01,  4.3217e+02],
+         [-8.7934e-02,  4.6274e-01, -1.4483e-03]],
+
+        [[ 1.1819e+02,  3.8497e+01,  4.3189e+02],
+         [-9.2085e-02,  4.6160e-01, -1.6516e-02]],
+
+        [[ 1.1615e+02,  4.8583e+01,  4.3141e+02],
+         [-9.4899e-02,  4.6051e-01, -2.6936e-02]],
+
+        [[ 1.1939e+02,  3.2450e+01,  4.3206e+02],
+         [-9.0377e-02,  4.6214e-01, -1.0274e-02]],
+
+        [[ 1.1987e+02,  2.9974e+01,  4.3211e+02],
+         [-8.9674e-02,  4.6233e-01, -7.7201e-03]],
+
+        [[ 1.1644e+02,  4.7150e+01,  4.3149e+02],
+         [-9.4501e-02,  4.6068e-01, -2.5454e-02]],
+
+        [[ 1.1592e+02,  4.9692e+01,  4.3135e+02],
+         [-9.5205e-02,  4.6038e-01, -2.8082e-02]],
+
+        [[ 1.1592e+02,  4.9683e+01,  4.3135e+02],
+         [-9.5203e-02,  4.6038e-01, -2.8073e-02]]])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="batch-tles">
+<h3>Batch TLEs<a class="headerlink" href="#batch-tles" title="Permalink to this heading">#</a></h3>
+<p>Let’s now see how it works for batch TLEs. The API is basically identical:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#we load 6 TLEs:</span>
+<span class="n">inp_file</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;0 PSLV DEB</span>
+<span class="s2">1 35350U 01049QJ  22068.76869562  .00000911  00000-0  24939-3 0  9998</span>
+<span class="s2">2 35350  98.6033  64.7516 0074531  99.8340 261.1278 14.48029442457561</span>
+<span class="s2">0 PSLV DEB *</span>
+<span class="s2">1 35351U 01049QK  22066.70636923  .00002156  00000-0  63479-3 0  9999</span>
+<span class="s2">2 35351  98.8179  29.5651 0005211  45.5944 314.5671 14.44732274457505</span>
+<span class="s2">0 SL-18 DEB</span>
+<span class="s2">1 35354U 93014BD  22068.76520028  .00021929  00000-0  20751-2 0  9995</span>
+<span class="s2">2 35354  75.7302 100.7819 0059525 350.7978   9.2117 14.92216400847487</span>
+<span class="s2">0 SL-18 DEB</span>
+<span class="s2">1 35359U 93014BJ  22068.55187275  .00025514  00000-0  24908-2 0  9992</span>
+<span class="s2">2 35359  75.7369 156.1582 0054843  50.5279 310.0745 14.91164684775759</span>
+<span class="s2">0 SL-18 DEB</span>
+<span class="s2">1 35360U 93014BK  22068.44021735  .00019061  00000-0  20292-2 0  9992</span>
+<span class="s2">2 35360  75.7343 127.2487 0071107  32.5913 327.9635 14.86997880798827</span>
+<span class="s2">0 METEOR 2-17 DEB</span>
+<span class="s2">1 35364U 88005Y   22067.81503681  .00001147  00000-0  84240-3 0  9995</span>
+<span class="s2">2 35364  82.5500  92.4124 0018834 303.2489 178.0638 13.94853833332534&quot;&quot;&quot;</span>
+<span class="n">lines</span><span class="o">=</span><span class="n">inp_file</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+<span class="c1">#let&#39;s create the TLE objects</span>
+<span class="n">tles</span><span class="o">=</span><span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">),</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">data</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">tles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dsgp4</span><span class="o">.</span><span class="n">tle</span><span class="o">.</span><span class="n">TLE</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<span class="c1">#we also create 9 random times, tracking the gradients:</span>
+<span class="n">tsinces</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">6</span><span class="p">,),</span><span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#let&#39;s initialize the TLEs:</span>
+<span class="n">_</span><span class="p">,</span><span class="n">tle_batch</span><span class="o">=</span><span class="n">dsgp4</span><span class="o">.</span><span class="n">initialize_tle</span><span class="p">(</span><span class="n">tles</span><span class="p">)</span>
+<span class="c1">#let&#39;s propagate the batch:</span>
+<span class="n">state_teme</span> <span class="o">=</span> <span class="n">dsgp4</span><span class="o">.</span><span class="n">propagate_batch</span><span class="p">(</span><span class="n">tle_batch</span><span class="p">,</span>
+                <span class="n">tsinces</span><span class="o">=</span><span class="n">tsinces</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now, let’s retrieve the partial of each TLE, at each propagated time, and store them into a Nx2x3 matrix:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#let&#39;s retrieve the partials w.r.t. time:</span>
+<span class="n">partial_derivatives</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">state_teme</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]:</span>
+        <span class="n">tsinces</span><span class="o">.</span><span class="n">grad</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">state_teme</span><span class="p">[:,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">tsinces</span><span class="p">),</span><span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">partial_derivatives</span><span class="p">[:,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">tsinces</span><span class="o">.</span><span class="n">grad</span>
+
+<span class="c1">#let&#39;s print to screen the partials:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">partial_derivatives</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[[ 5.3858e+01, -4.2999e+01,  4.4349e+02],
+         [-2.0314e-01, -4.2627e-01, -1.2655e-02]],
+
+        [[ 2.1472e+01, -6.6878e+01,  4.4356e+02],
+         [-4.1165e-01, -2.3098e-01, -1.4257e-02]],
+
+        [[-1.1026e+02, -2.2083e+01,  4.4240e+02],
+         [ 9.3534e-02, -4.8968e-01, -1.0973e-03]],
+
+        [[-3.9135e+01, -1.0526e+02,  4.4124e+02],
+         [ 4.5390e-01, -1.9931e-01, -4.6249e-03]],
+
+        [[-7.1174e+01, -9.1583e+01,  4.4113e+02],
+         [ 3.0596e-01, -3.9008e-01, -2.9379e-02]],
+
+        [[ 4.8010e+01, -3.6224e+02, -2.5040e+02],
+         [ 3.6894e-02,  2.5734e-01, -3.6539e-01]]])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="partials-with-respect-to-tle-parameters">
+<h2>Partials with respect to TLE parameters<a class="headerlink" href="#partials-with-respect-to-tle-parameters" title="Permalink to this heading">#</a></h2>
+<p>Let’s now tackle the case in which we are interested in the partials of the <span class="math notranslate nohighlight">\(\partial\textrm{SGP4}\)</span> output w.r.t. the TLE parameters.</p>
+<section id="id1">
+<h3>Single TLEs<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<p>We first tackle the case of single TLE, propagated at multiple times:</p>
+<p>In this case, we want the Jacobian of the output state, w.r.t. the following TLE parameters <span class="math notranslate nohighlight">\(\textrm{TLE}=[n,e,i,\Omega,\omega,M,B^*,\dot{n},\ddot{n}]\)</span>, where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(n\)</span> is the mean motion (also known as <code class="docutils literal notranslate"><span class="pre">no_kozai</span></code> in the original implementation) [rad/minute];</p></li>
+<li><p><span class="math notranslate nohighlight">\(e\)</span> is the eccentricity [-];</p></li>
+<li><p><span class="math notranslate nohighlight">\(i\)</span> is the inclination [rad];</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Omega\)</span> is the right ascension of the ascending node [rad];</p></li>
+<li><p><span class="math notranslate nohighlight">\(\omega\)</span> is the argument of perigee [rad];</p></li>
+<li><p><span class="math notranslate nohighlight">\(M\)</span> is the mean anomaly [rad];</p></li>
+<li><p><span class="math notranslate nohighlight">\(B^*\)</span> is the Bstar parameter [1/earth radii]</p></li>
+<li><p><span class="math notranslate nohighlight">\(\dot{n}\)</span> mean motion first derivative [radians/<span class="math notranslate nohighlight">\(\textrm{minute}^2\)</span>]</p></li>
+<li><p><span class="math notranslate nohighlight">\(\ddot{n}\)</span> mean motion second derivative [radians/<span class="math notranslate nohighlight">\(\textrm{minute}^2\)</span>]</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-95656fd8-a544-4d62-b2c1-29622d43d36c">
+<span class="eqno">(2)<a class="headerlink" href="#equation-95656fd8-a544-4d62-b2c1-29622d43d36c" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\dfrac{\partial \pmb{x}}{\partial \textrm{TLE}}=
+\begin{bmatrix}
+\frac{\partial x}{\partial B^*} &amp; \frac{\partial x}{\partial \dot{n}} &amp; \frac{\partial x}{\partial \ddot{n}} &amp; \frac{\partial x}{\partial e} &amp; \frac{\partial x}{\partial \omega} &amp; \frac{\partial x}{\partial i} &amp; \frac{\partial x}{\partial M} &amp; \frac{\partial x}{\partial n} &amp; \frac{\partial x}{\partial \Omega} \\
+\\
+\frac{\partial y}{\partial B^*} &amp; \frac{\partial y}{\partial \dot{n}} &amp; \frac{\partial y}{\partial \ddot{n}} &amp; \frac{\partial y}{\partial e} &amp; \frac{\partial y}{\partial \omega} &amp; \frac{\partial y}{\partial i} &amp; \frac{\partial y}{\partial M} &amp; \frac{\partial y}{\partial n} &amp; \frac{\partial y}{\partial \Omega} \\
+\\
+\frac{\partial z}{\partial B^*} &amp; \frac{\partial z}{\partial \dot{n}} &amp; \frac{\partial z}{\partial \ddot{n}} &amp; \frac{\partial z}{\partial e} &amp; \frac{\partial z}{\partial \omega} &amp; \frac{\partial z}{\partial i} &amp; \frac{\partial z}{\partial M} &amp; \frac{\partial z}{\partial n} &amp; \frac{\partial z}{\partial \Omega} \\
+\\
+\frac{\partial v_x}{\partial B^*} &amp; \frac{\partial v_x}{\partial \dot{n}} &amp; \frac{\partial v_x}{\partial \ddot{n}} &amp; \frac{\partial v_x}{\partial e} &amp; \frac{\partial v_x}{\partial \omega} &amp; \frac{\partial v_x}{\partial i} &amp; \frac{\partial v_x}{\partial M} &amp; \frac{\partial v_x}{\partial n} &amp; \frac{\partial v_x}{\partial \Omega} \\
+\\
+\frac{\partial v_y}{\partial B^*} &amp; \frac{\partial v_y}{\partial \dot{n}} &amp; \frac{\partial v_y}{\partial \ddot{n}} &amp; \frac{\partial v_y}{\partial e} &amp; \frac{\partial v_y}{\partial \omega} &amp; \frac{\partial v_y}{\partial i} &amp; \frac{\partial v_y}{\partial M} &amp; \frac{\partial v_y}{\partial n} &amp; \frac{\partial v_y}{\partial \Omega} \\
+\\
+\frac{\partial v_z}{\partial B^*} &amp; \frac{\partial v_z}{\partial \dot{n}} &amp; \frac{\partial v_z}{\partial \ddot{n}} &amp; \frac{\partial v_z}{\partial e} &amp; \frac{\partial v_z}{\partial \omega} &amp; \frac{\partial v_z}{\partial i} &amp; \frac{\partial v_z}{\partial M} &amp; \frac{\partial v_z}{\partial n} &amp; \frac{\partial v_z}{\partial \Omega} \\
+\\
+\frac{\partial \dot{n}}{\partial B^*} &amp; \frac{\partial \dot{n}}{\partial \dot{n}} &amp; \frac{\partial \dot{n}}{\partial \ddot{n}} &amp; \frac{\partial \dot{n}}{\partial e} &amp; \frac{\partial \dot{n}}{\partial \omega} &amp; \frac{\partial \dot{n}}{\partial i} &amp; \frac{\partial \dot{n}}{\partial M} &amp; \frac{\partial \dot{n}}{\partial n} &amp; \frac{\partial \dot{n}}{\partial \Omega} \\
+\\
+\frac{\partial \ddot{n}}{\partial B^*} &amp; \frac{\partial \ddot{n}}{\partial \dot{n}} &amp; \frac{\partial \ddot{n}}{\partial \ddot{n}} &amp; \frac{\partial \ddot{n}}{\partial e} &amp; \frac{\partial \ddot{n}}{\partial \omega} &amp; \frac{\partial \ddot{n}}{\partial i} &amp; \frac{\partial \ddot{n}}{\partial M} &amp; \frac{\partial \ddot{n}}{\partial n} &amp; \frac{\partial \ddot{n}}{\partial \Omega}
+\end{bmatrix}
+\end{equation}\]</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#as always, first, we create a TLE object:</span>
+<span class="n">tle</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">tle</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;0 COSMOS 2251 DEB&#39;</span><span class="p">)</span>
+<span class="n">tle</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;1 34454U 93036SX  22068.91971155  .00000319  00000-0  11812-3 0  9996&#39;</span><span class="p">)</span>
+<span class="n">tle</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;2 34454  74.0583 280.7094 0037596 327.9100  31.9764 14.35844873683320&#39;</span><span class="p">)</span>
+<span class="n">tle</span> <span class="o">=</span> <span class="n">dsgp4</span><span class="o">.</span><span class="n">tle</span><span class="o">.</span><span class="n">TLE</span><span class="p">(</span><span class="n">tle</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tle</span><span class="p">)</span>
+<span class="n">tle_elements</span><span class="o">=</span><span class="n">dsgp4</span><span class="o">.</span><span class="n">initialize_tle</span><span class="p">(</span><span class="n">tle</span><span class="p">,</span><span class="n">with_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TLE(
+0 COSMOS 2251 DEB
+1 34454U 93036SX  22068.91971155  .00000319  00000-0  11812-3 0  9996
+2 34454  74.0583 280.7094 0037596 327.9100  31.9764 14.35844873683320
+)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#let&#39;s select 10 random times:</span>
+<span class="n">tsince</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">10</span><span class="p">,))</span>
+<span class="c1">#and let&#39;s propagate:</span>
+<span class="n">state_teme</span><span class="o">=</span><span class="n">dsgp4</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">tle</span><span class="p">,</span><span class="n">tsince</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#now we can build the partial derivatives matrix, of shape Nx6x9 (N is the number of tsince elements, 6 is the number of elements in the state vector, and 9 is the number of elements in the TLE):</span>
+<span class="n">partial_derivatives</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">tsince</span><span class="p">),</span><span class="mi">6</span><span class="p">,</span><span class="mi">9</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tsince</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+        <span class="n">tle_elements</span><span class="o">.</span><span class="n">grad</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">state_teme</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">partial_derivatives</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">tle_elements</span><span class="o">.</span><span class="n">grad</span>
+<span class="c1">#let&#39;s print them to screen:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">partial_derivatives</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[[-1.4802e-04,  0.0000e+00,  0.0000e+00,  9.6372e+02,  1.8676e+03,
+          -2.8156e+02,  1.8822e+03, -1.3729e+04,  6.9851e+03],
+         [-6.7301e-04,  0.0000e+00,  0.0000e+00,  6.5212e+03,  6.6371e+02,
+          -5.6656e+01,  6.5288e+02,  7.4694e+04,  1.4042e+03],
+         [-9.4603e-04,  0.0000e+00,  0.0000e+00,  7.5523e+03,  6.8517e+03,
+           7.7567e+01,  6.8949e+03,  1.3734e+03,  0.0000e+00],
+         [-1.3014e-06,  0.0000e+00,  0.0000e+00,  7.7655e-01, -1.4725e+00,
+          -7.0678e+00, -1.4812e+00,  9.4513e+00, -6.8092e-01],
+         [-8.6667e-07,  0.0000e+00,  0.0000e+00,  4.7504e+00,  7.3464e+00,
+          -1.3392e+00,  7.3679e+00,  8.4212e+00,  1.9620e+00],
+         [-5.0320e-06,  0.0000e+00,  0.0000e+00,  5.7649e+00, -2.8637e-01,
+           2.0501e+00, -3.0261e-01,  3.8113e+01,  0.0000e+00]],
+
+        [[-1.1293e-04,  0.0000e+00,  0.0000e+00,  9.5728e+02,  1.8794e+03,
+          -2.2480e+02,  1.8941e+03, -1.3805e+04,  6.9903e+03],
+         [-5.3346e-04,  0.0000e+00,  0.0000e+00,  6.4834e+03,  6.0469e+02,
+          -4.5901e+01,  5.9370e+02,  7.4632e+04,  1.3884e+03],
+         [-7.3479e-04,  0.0000e+00,  0.0000e+00,  7.5057e+03,  6.8537e+03,
+           6.1102e+01,  6.8971e+03,  1.0670e+03,  0.0000e+00],
+         [-1.0453e-06,  0.0000e+00,  0.0000e+00,  8.1575e-01, -1.4559e+00,
+          -7.0700e+00, -1.4646e+00,  9.7237e+00, -6.1915e-01],
+         [-6.6783e-07,  0.0000e+00,  0.0000e+00,  4.6542e+00,  7.3519e+00,
+          -1.3395e+00,  7.3736e+00,  7.1091e+00,  1.9743e+00],
+         [-4.0236e-06,  0.0000e+00,  0.0000e+00,  5.8373e+00, -2.2564e-01,
+           2.0507e+00, -2.4150e-01,  3.8196e+01,  0.0000e+00]],
+
+        [[-1.9609e-04,  0.0000e+00,  0.0000e+00,  9.7141e+02,  1.8525e+03,
+          -3.5336e+02,  1.8671e+03, -1.3634e+04,  6.9777e+03],
+         [-8.5251e-04,  0.0000e+00,  0.0000e+00,  6.5701e+03,  7.3831e+02,
+          -7.0260e+01,  7.2770e+02,  7.4788e+04,  1.4240e+03],
+         [-1.2277e-03,  0.0000e+00,  0.0000e+00,  7.6104e+03,  6.8484e+03,
+           9.8394e+01,  6.8914e+03,  1.7600e+03,  0.0000e+00],
+         [-1.6202e-06,  0.0000e+00,  0.0000e+00,  7.2663e-01, -1.4933e+00,
+          -7.0642e+00, -1.5021e+00,  9.0994e+00, -7.5901e-01],
+         [-1.1351e-06,  0.0000e+00,  0.0000e+00,  4.8702e+00,  7.3388e+00,
+          -1.3386e+00,  7.3598e+00,  1.0078e+01,  1.9462e+00],
+         [-6.3011e-06,  0.0000e+00,  0.0000e+00,  5.6710e+00, -3.6320e-01,
+           2.0491e+00, -3.7990e-01,  3.7979e+01,  0.0000e+00]],
+
+        [[-6.0107e-05,  0.0000e+00,  0.0000e+00,  9.4583e+02,  1.8987e+03,
+          -1.2996e+02,  1.9135e+03, -1.3939e+04,  6.9979e+03],
+         [-3.0457e-04,  0.0000e+00,  0.0000e+00,  6.4221e+03,  5.0603e+02,
+          -2.7932e+01,  4.9474e+02,  7.4551e+04,  1.3617e+03],
+         [-4.0456e-04,  0.0000e+00,  0.0000e+00,  7.4265e+03,  6.8561e+03,
+           3.3591e+01,  6.8996e+03,  5.5404e+02,  0.0000e+00],
+         [-6.0975e-07,  0.0000e+00,  0.0000e+00,  8.8070e-01, -1.4279e+00,
+          -7.0727e+00, -1.4365e+00,  1.0167e+01, -5.1588e-01],
+         [-3.6226e-07,  0.0000e+00,  0.0000e+00,  4.4906e+00,  7.3598e+00,
+          -1.3399e+00,  7.3820e+00,  4.9133e+00,  1.9946e+00],
+         [-2.3293e-06,  0.0000e+00,  0.0000e+00,  5.9546e+00, -1.2415e-01,
+           2.0514e+00, -1.3939e-01,  3.8294e+01,  0.0000e+00]],
+
+        [[-1.2877e-04,  0.0000e+00,  0.0000e+00,  9.6028e+02,  1.8740e+03,
+          -2.5095e+02,  1.8886e+03, -1.3770e+04,  6.9879e+03],
+         [-5.9749e-04,  0.0000e+00,  0.0000e+00,  6.5007e+03,  6.3188e+02,
+          -5.0855e+01,  6.2096e+02,  7.4659e+04,  1.3957e+03],
+         [-8.3083e-04,  0.0000e+00,  0.0000e+00,  7.5272e+03,  6.8528e+03,
+           6.8686e+01,  6.8961e+03,  1.2082e+03,  0.0000e+00],
+         [-1.1637e-06,  0.0000e+00,  0.0000e+00,  7.9772e-01, -1.4635e+00,
+          -7.0691e+00, -1.4723e+00,  9.5989e+00, -6.4761e-01],
+         [-7.5794e-07,  0.0000e+00,  0.0000e+00,  4.6987e+00,  7.3494e+00,
+          -1.3394e+00,  7.3710e+00,  7.7137e+00,  1.9687e+00],
+         [-4.4887e-06,  0.0000e+00,  0.0000e+00,  5.8042e+00, -2.5361e-01,
+           2.0505e+00, -2.6965e-01,  3.8160e+01,  0.0000e+00]],
+
+        [[-9.4997e-05,  0.0000e+00,  0.0000e+00,  9.5366e+02,  1.8857e+03,
+          -1.9405e+02,  1.9004e+03, -1.3848e+04,  6.9929e+03],
+         [-4.5866e-04,  0.0000e+00,  0.0000e+00,  6.4633e+03,  5.7271e+02,
+          -4.0073e+01,  5.6161e+02,  7.4603e+04,  1.3798e+03],
+         [-6.2458e-04,  0.0000e+00,  0.0000e+00,  7.4802e+03,  6.8546e+03,
+           5.2180e+01,  6.8981e+03,  9.0080e+02,  0.0000e+00],
+         [-9.0513e-07,  0.0000e+00,  0.0000e+00,  8.3689e-01, -1.4468e+00,
+          -7.0710e+00, -1.4555e+00,  9.8691e+00, -5.8567e-01],
+         [-5.6505e-07,  0.0000e+00,  0.0000e+00,  4.6015e+00,  7.3546e+00,
+          -1.3397e+00,  7.3765e+00,  6.3975e+00,  1.9810e+00],
+         [-3.4754e-06,  0.0000e+00,  0.0000e+00,  5.8759e+00, -1.9272e-01,
+           2.0510e+00, -2.0839e-01,  3.8234e+01,  0.0000e+00]],
+
+        [[-7.8905e-05,  0.0000e+00,  0.0000e+00,  9.5019e+02,  1.8915e+03,
+          -1.6525e+02,  1.9063e+03, -1.3889e+04,  6.9952e+03],
+         [-3.8914e-04,  0.0000e+00,  0.0000e+00,  6.4446e+03,  5.4275e+02,
+          -3.4618e+01,  5.3157e+02,  7.4578e+04,  1.3717e+03],
+         [-5.2411e-04,  0.0000e+00,  0.0000e+00,  7.4561e+03,  6.8553e+03,
+           4.3828e+01,  6.8988e+03,  7.4505e+02,  0.0000e+00],
+         [-7.7296e-07,  0.0000e+00,  0.0000e+00,  8.5661e-01, -1.4383e+00,
+          -7.0719e+00, -1.4470e+00,  1.0004e+01, -5.5431e-01],
+         [-4.7203e-07,  0.0000e+00,  0.0000e+00,  4.5519e+00,  7.3570e+00,
+          -1.3398e+00,  7.3790e+00,  5.7309e+00,  1.9871e+00],
+         [-2.9611e-06,  0.0000e+00,  0.0000e+00,  5.9115e+00, -1.6191e-01,
+           2.0512e+00, -1.7739e-01,  3.8264e+01,  0.0000e+00]],
+
+        [[-1.7046e-04,  0.0000e+00,  0.0000e+00,  9.6745e+02,  1.8604e+03,
+          -3.1584e+02,  1.8750e+03, -1.3683e+04,  6.9817e+03],
+         [-7.5827e-04,  0.0000e+00,  0.0000e+00,  6.5444e+03,  6.9933e+02,
+          -6.3150e+01,  6.8861e+02,  7.4737e+04,  1.4137e+03],
+         [-1.0785e-03,  0.0000e+00,  0.0000e+00,  7.5802e+03,  6.8502e+03,
+           8.7510e+01,  6.8933e+03,  1.5581e+03,  0.0000e+00],
+         [-1.4543e-06,  0.0000e+00,  0.0000e+00,  7.5276e-01, -1.4824e+00,
+          -7.0662e+00, -1.4912e+00,  9.2843e+00, -7.1820e-01],
+         [-9.9246e-07,  0.0000e+00,  0.0000e+00,  4.8078e+00,  7.3429e+00,
+          -1.3389e+00,  7.3641e+00,  9.2126e+00,  1.9545e+00],
+         [-5.6388e-06,  0.0000e+00,  0.0000e+00,  5.7204e+00, -3.2305e-01,
+           2.0497e+00, -3.3951e-01,  3.8053e+01,  0.0000e+00]],
+
+        [[-2.2489e-04,  0.0000e+00,  0.0000e+00,  9.7551e+02,  1.8440e+03,
+          -3.9371e+02,  1.8585e+03, -1.3583e+04,  6.9733e+03],
+         [-9.5495e-04,  0.0000e+00,  0.0000e+00,  6.5981e+03,  7.8023e+02,
+          -7.7906e+01,  7.6974e+02,  7.4849e+04,  1.4351e+03],
+         [-1.3932e-03,  0.0000e+00,  0.0000e+00,  7.6427e+03,  6.8462e+03,
+           1.1010e+02,  6.8891e+03,  1.9768e+03,  0.0000e+00],
+         [-1.7968e-06,  0.0000e+00,  0.0000e+00,  6.9842e-01, -1.5049e+00,
+          -7.0618e+00, -1.5138e+00,  8.8979e+00, -8.0288e-01],
+         [-1.2941e-06,  0.0000e+00,  0.0000e+00,  4.9365e+00,  7.3341e+00,
+          -1.3381e+00,  7.3549e+00,  1.1008e+01,  1.9372e+00],
+         [-7.0112e-06,  0.0000e+00,  0.0000e+00,  5.6170e+00, -4.0638e-01,
+           2.0485e+00, -4.2333e-01,  3.7891e+01,  0.0000e+00]],
+
+        [[-1.6722e-06,  0.0000e+00,  0.0000e+00,  9.2936e+02,  1.9237e+03,
+          -4.6055e+00,  1.9386e+03, -1.4124e+04,  7.0058e+03],
+         [-9.4296e-06,  0.0000e+00,  0.0000e+00,  6.3444e+03,  3.7553e+02,
+          -4.1841e+00,  3.6384e+02,  7.4490e+04,  1.3262e+03],
+         [-1.1879e-05,  0.0000e+00,  0.0000e+00,  7.3196e+03,  6.8571e+03,
+          -2.7691e+00,  6.9009e+03, -1.2514e+02,  0.0000e+00],
+         [-1.9390e-08,  0.0000e+00,  0.0000e+00,  9.6545e-01, -1.3905e+00,
+          -7.0740e+00, -1.3990e+00,  1.0731e+01, -3.7926e-01],
+         [-1.0391e-08,  0.0000e+00,  0.0000e+00,  4.2689e+00,  7.3680e+00,
+          -1.3401e+00,  7.3908e+00,  2.0055e+00,  2.0208e+00],
+         [-7.3340e-08,  0.0000e+00,  0.0000e+00,  6.1022e+00,  9.9803e-03,
+           2.0517e+00, -4.4127e-03,  3.8340e+01,  0.0000e+00]]])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="id2">
+<h3>Batch TLEs:<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<p>As for the time derivatives, the API stays practically identical:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#we load 6 TLEs:</span>
+<span class="n">inp_file</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;0 PSLV DEB</span>
+<span class="s2">1 35350U 01049QJ  22068.76869562  .00000911  00000-0  24939-3 0  9998</span>
+<span class="s2">2 35350  98.6033  64.7516 0074531  99.8340 261.1278 14.48029442457561</span>
+<span class="s2">0 PSLV DEB *</span>
+<span class="s2">1 35351U 01049QK  22066.70636923  .00002156  00000-0  63479-3 0  9999</span>
+<span class="s2">2 35351  98.8179  29.5651 0005211  45.5944 314.5671 14.44732274457505</span>
+<span class="s2">0 SL-18 DEB</span>
+<span class="s2">1 35354U 93014BD  22068.76520028  .00021929  00000-0  20751-2 0  9995</span>
+<span class="s2">2 35354  75.7302 100.7819 0059525 350.7978   9.2117 14.92216400847487</span>
+<span class="s2">0 SL-18 DEB</span>
+<span class="s2">1 35359U 93014BJ  22068.55187275  .00025514  00000-0  24908-2 0  9992</span>
+<span class="s2">2 35359  75.7369 156.1582 0054843  50.5279 310.0745 14.91164684775759</span>
+<span class="s2">0 SL-18 DEB</span>
+<span class="s2">1 35360U 93014BK  22068.44021735  .00019061  00000-0  20292-2 0  9992</span>
+<span class="s2">2 35360  75.7343 127.2487 0071107  32.5913 327.9635 14.86997880798827</span>
+<span class="s2">0 METEOR 2-17 DEB</span>
+<span class="s2">1 35364U 88005Y   22067.81503681  .00001147  00000-0  84240-3 0  9995</span>
+<span class="s2">2 35364  82.5500  92.4124 0018834 303.2489 178.0638 13.94853833332534&quot;&quot;&quot;</span>
+<span class="n">lines</span><span class="o">=</span><span class="n">inp_file</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+<span class="c1">#let&#39;s create the TLE objects</span>
+<span class="n">tles</span><span class="o">=</span><span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">),</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">data</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">tles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dsgp4</span><span class="o">.</span><span class="n">tle</span><span class="o">.</span><span class="n">TLE</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<span class="c1">#we also create 6 random times, tracking the gradients:</span>
+<span class="n">tsinces</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">6</span><span class="p">,))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#let&#39;s now initialize the TLEs, activating the gradient tracking for the TLE parameters:</span>
+<span class="n">tle_elements</span><span class="p">,</span><span class="n">tle_batch</span><span class="o">=</span><span class="n">dsgp4</span><span class="o">.</span><span class="n">initialize_tle</span><span class="p">(</span><span class="n">tles</span><span class="p">,</span><span class="n">with_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#let&#39;s now propagate the batch of TLEs:</span>
+<span class="n">state_teme</span> <span class="o">=</span> <span class="n">dsgp4</span><span class="o">.</span><span class="n">propagate_batch</span><span class="p">(</span><span class="n">tle_batch</span><span class="p">,</span><span class="n">tsinces</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we can build the matrix that contains the partial of the SGP4 output w.r.t. the TLE parameters, for each TLE:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#now we can build the partial derivatives matrix, of shape Nx6x9 (N is the number of tsince elements, 6 is the number of elements in the state vector, and 9 is the number of elements in the TLE):</span>
+<span class="n">partial_derivatives</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">tsinces</span><span class="p">),</span><span class="mi">6</span><span class="p">,</span><span class="mi">9</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tsinces</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+        <span class="n">tle_elements</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">grad</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">state_teme</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">partial_derivatives</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">tle_elements</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">grad</span>
+<span class="c1">#let&#39;s print them to screen:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">partial_derivatives</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[[-3.9672e-04,  0.0000e+00,  0.0000e+00, -1.2518e+03,  8.2395e+02,
+           2.8419e+02,  7.9976e+02, -3.1890e+04, -6.4122e+03],
+         [-1.8989e-03,  0.0000e+00,  0.0000e+00,  2.2836e+03, -7.4930e+02,
+          -1.3612e+02, -7.9534e+02, -6.8152e+04,  3.0766e+03],
+         [ 2.9804e-03,  0.0000e+00,  0.0000e+00, -1.3912e+04,  7.0336e+03,
+          -4.5283e+01,  7.0188e+03,  1.5037e+03,  0.0000e+00],
+         [-1.3372e-06,  0.0000e+00,  0.0000e+00,  3.1127e+00, -3.2431e+00,
+           6.6766e+00, -3.2340e+00,  2.1598e+00,  8.3643e-01],
+         [-1.1545e-06,  0.0000e+00,  0.0000e+00,  6.7929e+00, -6.7399e+00,
+          -3.1501e+00, -6.7400e+00, -9.1192e+00,  8.4035e-01],
+         [-4.7254e-06,  0.0000e+00,  0.0000e+00, -5.4241e-01, -3.8690e-01,
+          -1.1144e+00, -3.3192e-01,  3.8748e+01,  0.0000e+00]],
+
+        [[-5.5199e-05,  0.0000e+00,  0.0000e+00, -5.0700e+03,  4.8814e+02,
+           2.3454e+01,  4.8621e+02, -6.5447e+04, -3.5068e+03],
+         [-6.2025e-05,  0.0000e+00,  0.0000e+00, -1.0899e+03, -9.7921e+02,
+          -4.5170e+01, -9.8122e+02, -3.7146e+04,  6.1978e+03],
+         [ 1.7210e-04,  0.0000e+00,  0.0000e+00, -1.0009e+04,  7.0384e+03,
+          -5.5533e+00,  7.0436e+03,  1.1246e+02,  0.0000e+00],
+         [-1.4294e-07,  0.0000e+00,  0.0000e+00,  4.9828e+00, -6.5211e+00,
+           3.6461e+00, -6.5234e+00,  2.0174e+00,  1.0290e+00],
+         [ 7.1397e-08,  0.0000e+00,  0.0000e+00,  1.8893e+00, -3.6893e+00,
+          -6.4299e+00, -3.6910e+00, -5.8080e+00,  5.0980e-01],
+         [-8.5310e-07,  0.0000e+00,  0.0000e+00,  5.2593e+00, -5.6044e-02,
+          -1.1439e+00, -5.3333e-02,  3.9109e+01,  0.0000e+00]],
+
+        [[-3.3992e-05,  0.0000e+00,  0.0000e+00,  7.4094e+02, -1.6766e+03,
+           9.0471e+00, -1.6977e+03,  1.3290e+04, -6.8082e+03],
+         [ 1.6672e-04,  0.0000e+00,  0.0000e+00, -6.8648e+03, -3.3598e+02,
+           4.7944e+00, -3.3330e+02, -6.9653e+04, -1.2988e+03],
+         [ 8.6587e-06,  0.0000e+00,  0.0000e+00,  2.1859e+03,  6.7183e+03,
+          -1.3386e+00,  6.7978e+03, -9.8312e+01,  0.0000e+00],
+         [ 1.6463e-07,  0.0000e+00,  0.0000e+00, -1.5803e+00,  1.4254e+00,
+           7.2392e+00,  1.4356e+00, -9.3790e+00,  3.6104e-01],
+         [ 2.7959e-08,  0.0000e+00,  0.0000e+00, -1.5876e+00, -7.4812e+00,
+           1.3807e+00, -7.5253e+00, -1.9150e+00, -1.8389e+00],
+         [-6.5560e-07,  0.0000e+00,  0.0000e+00,  7.2763e+00, -2.6970e-03,
+           1.8697e+00, -9.8357e-03,  3.7762e+01,  0.0000e+00]],
+
+        [[-3.3473e-03,  0.0000e+00,  0.0000e+00,  4.8737e+03, -3.7600e+02,
+           1.2975e+02, -3.5285e+02,  6.5091e+04, -2.7295e+03],
+         [-5.9288e-04,  0.0000e+00,  0.0000e+00,  6.7866e+02, -1.7051e+03,
+           3.0132e+02, -1.7289e+03, -2.9189e+04, -6.3821e+03],
+         [ 7.4523e-03,  0.0000e+00,  0.0000e+00, -1.0185e+04,  6.7283e+03,
+           7.9383e+01,  6.7771e+03,  1.5295e+03,  0.0000e+00],
+         [ 5.4760e-06,  0.0000e+00,  0.0000e+00, -5.4370e+00,  6.9800e+00,
+           2.9656e+00,  7.0045e+00,  3.1785e+00,  1.8716e+00],
+         [ 3.3537e-06,  0.0000e+00,  0.0000e+00,  9.4892e-01, -2.9769e+00,
+           6.7164e+00, -2.9956e+00, -1.1760e+01, -3.8144e-01],
+         [-2.0742e-05,  0.0000e+00,  0.0000e+00,  5.2352e+00, -3.8851e-01,
+           1.8620e+00, -3.6017e-01,  3.7387e+01,  0.0000e+00]],
+
+        [[-3.9691e-03,  0.0000e+00,  0.0000e+00,  4.8869e+03, -1.1708e+03,
+           2.3674e+02, -1.1702e+03,  4.2973e+04, -5.4767e+03],
+         [ 3.0120e-03,  0.0000e+00,  0.0000e+00, -3.4858e+03, -1.2873e+03,
+           1.8390e+02, -1.3229e+03, -5.7096e+04, -4.2598e+03],
+         [ 5.2538e-03,  0.0000e+00,  0.0000e+00, -6.9971e+03,  6.7254e+03,
+           7.2217e+01,  6.8080e+03,  1.3894e+03,  0.0000e+00],
+         [ 5.4443e-06,  0.0000e+00,  0.0000e+00, -3.4411e+00,  4.6723e+00,
+           5.8532e+00,  4.6969e+00, -3.3412e+00,  1.4283e+00],
+         [ 1.1687e-06,  0.0000e+00,  0.0000e+00,  1.7747e+00, -5.9961e+00,
+           4.4536e+00, -6.0385e+00, -1.1348e+01, -1.2628e+00],
+         [-1.9802e-05,  0.0000e+00,  0.0000e+00,  6.5533e+00, -3.5447e-01,
+           1.8656e+00, -3.3053e-01,  3.7602e+01,  0.0000e+00]],
+
+        [[-1.3238e-05,  0.0000e+00,  0.0000e+00, -6.2624e+02,  7.8041e+02,
+           6.0236e+03,  7.7748e+02,  7.2692e+03,  4.0720e+03],
+         [ 6.6101e-05,  0.0000e+00,  0.0000e+00, -3.9957e+03, -6.0626e+03,
+           2.5303e+02, -6.0397e+03,  4.0651e+04, -6.1753e+02],
+         [ 7.5275e-05,  0.0000e+00,  0.0000e+00,  6.0670e+03, -4.0091e+03,
+           7.8865e+02, -3.9941e+03, -6.8671e+04,  0.0000e+00],
+         [-2.3139e-07,  0.0000e+00,  0.0000e+00, -7.9188e-01,  6.2488e-01,
+          -4.0430e+00,  6.2371e-01,  4.7044e+00,  6.1229e+00],
+         [ 1.8083e-06,  0.0000e+00,  0.0000e+00,  6.1026e+00,  4.1142e+00,
+          -1.6907e-01,  4.1064e+00, -3.0871e+01,  7.8754e-01],
+         [ 1.1835e-06,  0.0000e+00,  0.0000e+00,  4.0889e+00, -6.1023e+00,
+          -5.2731e-01, -6.0909e+00, -2.6092e+01,  0.0000e+00]]])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="tle_propagation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Propagate TLEs</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="mldsgp4.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">ML-dSGP4</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#partials-with-respect-to-time">Partials with respect to time</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#single-tles">Single TLEs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#batch-tles">Batch TLEs</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#partials-with-respect-to-tle-parameters">Partials with respect to TLE parameters</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Single TLEs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Batch TLEs:</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Giacomo Acciarini, Atılım Güneş Baydin, Dario Izzo
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022, 2023, 2024, 2025, Giacomo Acciarini and Atılım Güneş Baydin and Dario Izzo.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
